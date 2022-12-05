@@ -1,5 +1,6 @@
 Scriptname AlternateAlchemyPoisonMonitor extends ReferenceAlias
 
+Perk Property ProtectBleedout auto
 Weapon Property _AA_Syringe auto
 FormList Property EmptyList auto
 
@@ -29,6 +30,7 @@ Function IncrementFriendHits()
 EndFunction
 
 Event OnInit()
+    GetActorRef().AddPerk(ProtectBleedout)
     RegisterForMenu("InventoryMenu")
     RegisterForMenu("FavoritesMenu")
 EndEvent
