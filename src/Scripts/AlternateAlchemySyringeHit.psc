@@ -14,11 +14,11 @@ Event OnEffectStart(Actor Target, Actor Caster)
 
     bool BeneficialPoisonApplied = (PreHitLeftHandBeneficialPoison && !PostHitLeftHandBeneficialPoison) || (PreHitRightHandBeneficialPoison && !PostHitRightHandBeneficialPoison)
 
-    If (BeneficialPoisonApplied || Target.IsPlayerTeammate())
+    If (BeneficialPoisonApplied)
         return
     EndIf
 
-    If (PoisonMonitor.GetFriendHits() < 3 && Target.GetRelationshipRank(Caster) > 1)
+    If (PoisonMonitor.GetFriendHits() < 3 && (Target.GetRelationshipRank(Caster) > 1 || Target.IsPlayerTeammate()))
         PoisonMonitor.IncrementFriendHits()
         return
     EndIf
