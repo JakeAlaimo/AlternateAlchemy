@@ -113,7 +113,7 @@ namespace AlternateAlchemy
 			AsAlchemyItem->itemData.flags |= AlchemyItem::kFlag_Poison;
 		}
 
-		if (!ClearOverrideRegistered)
+		if (!ClearOverrideRegistered && MenuManager::GetSingleton())
 		{
 			MenuManager::GetSingleton()->MenuOpenCloseEventDispatcher()->AddEventSink(&ClearOverride);
 		}
