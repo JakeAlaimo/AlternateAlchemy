@@ -560,7 +560,6 @@
   </ItemGroup>
   <ItemGroup>
     <MASM Include="src\CallPoisonFlagToggleOnAltEquip64.asm" />
-    <MASM Include="src\IsPoisonOverride64.asm" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

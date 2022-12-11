@@ -1,5 +1,7 @@
 #include "PatchPotionEquipBehavior.h"
 #include "GameReferences.h"
+#include "GameEvents.h"
+#include "GameMenus.h"
 #include "Offsets.h"
 #include "SafeWrite.h"
 
@@ -37,12 +39,38 @@ UInt8* GetCodecaveBytes(UInt64 CodecaveFunctionAddress, UInt8 ExtraBytes)
 
 namespace AlternateAlchemy
 {
-	UInt32 OverrideFormID = 0;
-	bool OverridePoisonState = false;
+	AlchemyItem* LastOverriddenAlchemyItem = nullptr;
+	UInt32 OverriddenFlags = 0;
+
+	void ClearLastOverriddenAlchemyItem()
+	{
+		if (LastOverriddenAlchemyItem)
+		{
+			LastOverriddenAlchemyItem->itemData.flags = OverriddenFlags;
+			LastOverriddenAlchemyItem = nullptr;
+		}
+	}
+
+	class ClearOverrideOnMenuChanged : public BSTEventSink<MenuOpenCloseEvent>
+	{
+		virtual	EventResult	ReceiveEvent(MenuOpenCloseEvent* Event, EventDispatcher<MenuOpenCloseEvent>* Dispatcher)
+		{
+			std::string MenuName = Event->menuName.data; 
+			if (MenuName == "InventoryMenu" || MenuName == "FavoritesMenu")
+			{
+				ClearLastOverriddenAlchemyItem();
+			}
+
+			return kEvent_Continue;
+		}
+	};
+
+	ClearOverrideOnMenuChanged ClearOverride;
+	bool ClearOverrideRegistered = false;
 
 	void TogglePoisonFlagIfAlternateEquipped(TESObjectREFR* Equipper, TESForm* EquippedItem, BGSEquipSlot* EquippedSlot)
 	{
-		OverrideFormID = 0;
+		ClearLastOverriddenAlchemyItem();
 
 		if (!Equipper || !Equipper->baseForm || Equipper->baseForm->formID != 7)
 		{
@@ -73,8 +101,22 @@ namespace AlternateAlchemy
 			return;
 		}
 
-		OverrideFormID = AsAlchemyItem->formID;
-		OverridePoisonState = !AsAlchemyItem->IsPoison();
+		LastOverriddenAlchemyItem = AsAlchemyItem;
+		OverriddenFlags = AsAlchemyItem->itemData.flags;
+
+		if (AsAlchemyItem->IsPoison())
+		{
+			AsAlchemyItem->itemData.flags &= ~AlchemyItem::kFlag_Poison;
+		}
+		else
+		{
+			AsAlchemyItem->itemData.flags |= AlchemyItem::kFlag_Poison;
+		}
+
+		if (!ClearOverrideRegistered)
+		{
+			MenuManager::GetSingleton()->MenuOpenCloseEventDispatcher()->AddEventSink(&ClearOverride);
+		}
 	}
 
 	void PatchPotionEquip()
@@ -82,18 +124,8 @@ namespace AlternateAlchemy
 		constexpr UInt8 MinimumCodecaveSize = 13;
 		constexpr UInt8 PoisonToggleCodecaveSize = 13;
 
-#ifndef SE_BUILD
-		constexpr UInt8 IsPoisonOverrideCodecaveSize = 25; // Replacing the whole function
-#else
-		constexpr UInt8 IsPoisonOverrideCodecaveSize = 26; // AE builds optimize this function slightly - 1 byte larger in SE
-#endif
-
 		UInt8* PoisonFlagToggleCodecaveBytes = GetCodecaveBytes((UInt64)&CallPoisonFlagToggleOnAltEquip, PoisonToggleCodecaveSize - MinimumCodecaveSize);
 		ApplyPatch(EquipItem::Offset, PoisonFlagToggleCodecaveBytes, PoisonToggleCodecaveSize * sizeof(UInt8));
 		delete[] PoisonFlagToggleCodecaveBytes;
-
-		UInt8* IsPoisonOverrideCodecaveBytes = GetCodecaveBytes((UInt64)&IsPoisonOverride, IsPoisonOverrideCodecaveSize - MinimumCodecaveSize);
-		ApplyPatch(Alchemy::IsPoison.GetUIntPtr(), IsPoisonOverrideCodecaveBytes, IsPoisonOverrideCodecaveSize * sizeof(UInt8));
-		delete[] IsPoisonOverrideCodecaveBytes;
 	}
 }

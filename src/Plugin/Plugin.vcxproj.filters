@@ -52,8 +52,5 @@
     <MASM Include="src\CallPoisonFlagToggleOnAltEquip64.asm">
       <Filter>Source Files</Filter>
     </MASM>
-    <MASM Include="src\IsPoisonOverride64.asm">
-      <Filter>Source Files</Filter>
-    </MASM>
   </ItemGroup>
 </Project>
