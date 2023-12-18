@@ -1,0 +1,3 @@
+Scriptname AlternateAlchemyConditions extends Quest conditional
+
+bool Property BeneficialPoisonEquipped auto conditional

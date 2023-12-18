@@ -1,23 +1,32 @@
 Scriptname AlternateAlchemyPoisonMonitor extends ReferenceAlias
 
+AlternateAlchemyConditions Property Conditions auto
 Perk Property ProtectBleedout auto
 Weapon Property _AA_Syringe auto
 FormList Property EmptyList auto
 
+Potion Property PreviousLeftHandPoison auto
+Potion Property PreviousRightHandPoison auto
+Potion Property LeftHandPoison auto
+Potion Property RightHandPoison auto
 bool Property LeftHandBeneficialPoison auto
 bool Property RightHandBeneficialPoison auto
 
 int FriendHits = 0
 
 Function UpdatePoisonStatus()
+    PreviousLeftHandPoison = LeftHandPoison
+    PreviousRightHandPoison = RightHandPoison
 
-    Potion LeftHandPoison = AlternateAlchemy.GetEquippedPoison(GetActorRef(), 0)
-    Potion RightHandPoison = AlternateAlchemy.GetEquippedPoison(GetActorRef(), 1)
+    LeftHandPoison = AlternateAlchemy.GetEquippedPoison(GetActorRef(), 0)
+    RightHandPoison = AlternateAlchemy.GetEquippedPoison(GetActorRef(), 1)
 
-    ; Alternate Alchemy allows equipping potions as poisons without actually mutating the poison flag
+    ; Alternate Alchemy allows equipping potions as poisons without permanently mutating the poison flag
     ; The poison flag serves as the ultimate arbiter of whether a potion is predominantly harmful or beneficial
     LeftHandBeneficialPoison = LeftHandPoison && !LeftHandPoison.IsPoison()
     RightHandBeneficialPoison = RightHandPoison && !RightHandPoison.IsPoison()
+
+    Conditions.BeneficialPoisonEquipped = LeftHandBeneficialPoison || RightHandBeneficialPoison
 EndFunction
 
 int Function GetFriendHits()
