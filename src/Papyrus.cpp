@@ -3,19 +3,23 @@
 
 RE::AlchemyItem* GetEquippedPoison(RE::StaticFunctionTag*, RE::Actor* Actor, uint32_t WeaponSlot)
 {
-    RE::InventoryEntryData* EquippedData = Actor->GetEquippedEntryData(WeaponSlot);
-
-    if (!EquippedData || !EquippedData->extraLists)
+    if (!Actor)
     {
         return nullptr;
     }
 
-    for (const auto& ExtraList : *EquippedData->extraLists)
+    RE::InventoryEntryData* EquippedData = Actor->GetEquippedEntryData(WeaponSlot);
+    if (!EquippedData || EquippedData->extraLists == nullptr)
     {
-        RE::BSExtraData* Data = (ExtraList) ? ExtraList->GetByType(RE::ExtraDataType::kPoison) : nullptr;
-        if (RE::ExtraPoison* PoisonData = static_cast<RE::ExtraPoison*>(Data))
+        return nullptr;
+    }
+
+    for (const RE::ExtraDataList* ExtraList : *EquippedData->extraLists)
+    {
+        const RE::BSExtraData* Data = (ExtraList) ? ExtraList->GetByType(RE::ExtraDataType::kPoison) : nullptr;
+        if (const RE::ExtraPoison* PoisonData = static_cast<const RE::ExtraPoison*>(Data))
         {
-            return PoisonData->poison;
+            return (PoisonData && PoisonData->GetType() == RE::ExtraDataType::kPoison) ? PoisonData->poison : nullptr;
         }
     }
 

@@ -25,7 +25,7 @@ namespace AlternateAlchemy
 	{
 		virtual RE::BSEventNotifyControl ProcessEvent(const RE::MenuOpenCloseEvent* Event, RE::BSTEventSource<RE::MenuOpenCloseEvent>* Source)
 		{
-			if (Event->menuName == "InventoryMenu" || Event->menuName == "FavoritesMenu")
+			if (Event && (Event->menuName == "InventoryMenu" || Event->menuName == "FavoritesMenu"))
 			{
 				ClearLastOverriddenAlchemyItem();
 			}
