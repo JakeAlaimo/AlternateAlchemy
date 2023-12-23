@@ -1,7 +1,7 @@
 {
     "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
     "name": "alternate-alchemy-ng",
-    "version-string": "1.2.0",
+    "version-string": "1.2.1",
     "port-version": 0,
     "description": "SKSE plugin allowing the player Skyrim to apply potions to their weapons and drink poisons.",
     "homepage": "https://www.nexusmods.com/skyrimspecialedition/mods/80047",
